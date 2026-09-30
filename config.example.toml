@@ -1,0 +1,23 @@
+[[sources]]
+path = "~/Documents/Meetings"
+label = "Meetings"
+
+[[sources]]
+path = "/Volumes/ExternalDrive/OBS"
+label = "OBS"
+
+[destination]
+path = "~/Documents/Transcripts"
+
+[transcription]
+language = "ru"
+
+[runtime]
+poll_seconds = 30
+stable_seconds = 90
+diarization_enabled = true
+
+# Optional overrides if ffmpeg and ffprobe are not on PATH:
+# [tools]
+# ffmpeg = "/opt/homebrew/bin/ffmpeg"
+# ffprobe = "/opt/homebrew/bin/ffprobe"

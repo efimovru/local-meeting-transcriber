@@ -1,0 +1,43 @@
+name: Tests
+on:
+  push:
+  pull_request:
+
+jobs:
+  unit:
+    runs-on: macos-15
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          architecture: arm64
+      - name: Syntax and unit tests (no model downloads)
+        run: |
+          python -m py_compile worker.py diarize.py settings.py tests/*.py
+          python -m unittest discover -s tests -v
+      - name: Public tree audit
+        run: |
+          python - <<'PY'
+          import pathlib, re, subprocess
+          files = [pathlib.Path(x.decode()) for x in subprocess.check_output(['git', 'ls-files', '-z']).split(b'\0') if x]
+          forbidden_names = {'config.toml', 'state.json', 'worker.log', 'REVIEW.md'}
+          assert not any(p.name in forbidden_names or p.suffix in {'.zip', '.wav', '.aiff'} for p in files)
+          for path in files:
+              data = path.read_bytes()
+              assert b'\0' not in data, f'binary tracked file: {path}'
+              assert not re.search(rb'hf_[A-Za-z0-9]{20,}', data, re.I), f'possible token: {path}'
+              lowered = data.lower()
+              for term in (b'/us' + b'ers/', b'zike' + b'drive'):
+                  assert term not in lowered, f'private path in {path}'
+              owner = b'efi' + b'movru'
+              allowed_owner_lines = {
+                  pathlib.Path('README.md'): {b'git clone https://github.com/' + owner + b'/local-meeting-transcriber.git'},
+                  pathlib.Path('LICENSE'): {b'Copyright (c) 2026 ' + owner},
+              }
+              for line in data.splitlines():
+                  if owner in line.lower():
+                      assert line.lower() in {item.lower() for item in allowed_owner_lines.get(path, set())}, f'unexpected owner identifier in {path}'
+          PY

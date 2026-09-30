@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+  <key>Label</key><string>local.transcriber.worker</string>
+  <key>ProgramArguments</key><array>
+    <string>__APP_DIR__/venv/bin/python</string>
+    <string>__APP_DIR__/app/worker.py</string>
+  </array>
+  <key>WorkingDirectory</key><string>__APP_DIR__/app</string>
+  <key>EnvironmentVariables</key><dict>
+    <key>HF_HUB_OFFLINE</key><string>1</string>
+    <key>LOCAL_MEETING_TRANSCRIBER_HOME</key><string>__APP_DIR__</string>
+  </dict>
+  <key>RunAtLoad</key><true/>
+  <key>KeepAlive</key><true/>
+  <key>StandardOutPath</key><string>__APP_DIR__/launchd.stdout.log</string>
+  <key>StandardErrorPath</key><string>__APP_DIR__/launchd.stderr.log</string>
+</dict></plist>
